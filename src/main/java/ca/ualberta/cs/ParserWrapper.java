@@ -10,19 +10,18 @@ import com.sun.tools.javac.file.JavacFileManager;
 import java.util.logging.Logger;
 import java.nio.charset.StandardCharsets;
 
-
+import ca.ualberta.cs.FakeFile;
 
 public class ParserWrapper 
 {
     protected Context context;
     protected ParserFactory factory;
-    private static Logger log = Logger.getLogger("ParserWrapper");
+    private static Logger logger = Logger.getLogger("ParserWrapper");
+    protected Log log;
     public ParserWrapper() {
         context = new Context();
         new JavacFileManager(context, true, StandardCharsets.UTF_8);
-        Source.instance(context);
-        Log log = Log.instance(context);
-        log.useSource();
+        log = Log.instance(context);
         // override the log by something like
         // context.set(Log.logKey, myLog);
         factory = ParserFactory.instance(context);
@@ -30,6 +29,7 @@ public class ParserWrapper
     
     public void parseIt(String javaSource) {
         JavacParser parser = factory.newParser(javaSource, true, true, true);
+        log.useSource(new FakeFile(javaSource));
         parser.parseCompilationUnit();
     }
 }

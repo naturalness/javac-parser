@@ -23,12 +23,16 @@ public class FakeFile implements JavaFileObject {
     protected Date date;
     
     public FakeFile(String contents) {
-        self.contents = contents;
-        self.date = Date();
+        this.contents = contents;
+        this.date = new Date();
     }
     
     public URI toUri() {
-        return URI("fake://unnaturalcode/java/source/file.java");
+        try {
+            return new URI("fake://unnaturalcode/java/source/file.java");
+        } catch (java.net.URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
     }
     
     public String getName() {
@@ -37,7 +41,7 @@ public class FakeFile implements JavaFileObject {
     
     public InputStream openInputStream() throws IOException {
         return new ByteArrayInputStream(
-            exampleString.getBytes(StandardCharsets.UTF_8));
+            contents.getBytes(StandardCharsets.UTF_8));
     }
     
     public OutputStream openOutputStream() throws IOException {
@@ -69,15 +73,15 @@ public class FakeFile implements JavaFileObject {
         return JavaFileObject.Kind.SOURCE;
     }
     
-    boolean isNameCompatible(String simpleName, JavaFileObject.Kind kind) {
+    public boolean isNameCompatible(String simpleName, JavaFileObject.Kind kind) {
         return true;
     }
     
-    NestingKind getNestingKind() {
+    public NestingKind getNestingKind() {
         return null;
     }
     
-    Modifier getAccessLevel() {
+    public Modifier getAccessLevel() {
         return null;
     }
 }

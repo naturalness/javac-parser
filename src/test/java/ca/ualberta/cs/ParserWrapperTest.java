@@ -42,7 +42,6 @@ public class ParserWrapperTest
             "package ca.ualberta.cs;\n"
             + "import java.util.logging.Logger;\n"
             + "public class ParserWrapper {\n"
-            + "alksdjflaksdjfalksjdf';a;sdklf"
             + "}\n"
         );
     }
