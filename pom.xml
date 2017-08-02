@@ -14,11 +14,16 @@
       <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
-     <dependency>
+    <dependency>
       <groupId>com.google.errorprone</groupId>
       <artifactId>javac</artifactId>
       <version>1.8.0-beta-132</version>
       <scope>compile</scope>
+    </dependency>
+    <dependency>
+        <groupId>py4j</groupId>
+        <artifactId>py4j</artifactId>
+        <version>0.10.6</version>
     </dependency>
   </dependencies>
   <!-- from https://stackoverflow.com/questions/1729054/including-dependencies-in-a-jar-with-maven -->
@@ -36,6 +41,11 @@
           </execution>
         </executions>
         <configuration>
+            <archive>
+                <manifest>
+                    <mainClass>ca.ualberta.cs.App</mainClass>
+                </manifest>
+            </archive>
           <descriptorRefs>
             <descriptorRef>jar-with-dependencies</descriptorRef>
           </descriptorRefs>

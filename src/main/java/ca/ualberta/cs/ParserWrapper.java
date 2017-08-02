@@ -47,6 +47,9 @@ public class ParserWrapper
         log.useSource(new FakeFile(javaSource));
         Object what = parser.parseCompilationUnit();
 //         logger.info(what.toString());
+        for (Object x : diagnostics.getDiagnostics()) {
+            logger.info(x.toString());
+        }
         return diagnostics.getDiagnostics().size();
     }
 }
