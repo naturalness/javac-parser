@@ -45,7 +45,7 @@ public class FakeFile implements JavaFileObject {
     }
     
     public OutputStream openOutputStream() throws IOException {
-        return null;
+        throw new RuntimeException("Me not that kind of file.");
     }
     
     public Reader openReader(boolean ignoreEncodingErrors) throws IOException {
@@ -58,7 +58,7 @@ public class FakeFile implements JavaFileObject {
     }
     
     public Writer openWriter() throws IOException {
-        return null;
+        throw new RuntimeException("Me not that kind of file.");
     }
     
     public long getLastModified() {

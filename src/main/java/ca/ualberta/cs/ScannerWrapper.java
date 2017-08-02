@@ -4,12 +4,14 @@ import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.parser.ScannerFactory;
 import com.sun.tools.javac.parser.Scanner;
 import static com.sun.tools.javac.parser.Tokens.*;
+
 import java.util.logging.Logger;
 
 
 
 public class ScannerWrapper 
 {
+
     protected Context context;
     protected ScannerFactory factory;
     private static Logger log = Logger.getLogger("ScannerWrapper");
