@@ -92,4 +92,10 @@ public class ParserWrapperTest
             + "}\n"
         ));
     }
+
+    public void testLex()
+    {
+        ParserWrapper sw = new ParserWrapper();
+        assertEquals(6, sw.lexIt("a = 1 + 2").size());
+    }
 }
