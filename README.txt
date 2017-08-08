@@ -1,4 +1,7 @@
 VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+if using pyenv: 
+export VIRTUAL_ENV="$(pyenv prefix)"
+
 py4j instructions:
 
 mvn install:install-file -Dfile=${VIRTUAL_ENV}/share/py4j/py4j0.10.6.jar -DgroupId=py4j -DartifactId=py4j -Dversion=0.10.6 -Dpackaging=jar -DgeneratePom=true
