@@ -1,0 +1,2 @@
+include pom.xml
+recursive-include src *.java

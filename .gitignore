@@ -1,2 +1,5 @@
 .cache/
 target/
+dist/
+*.egg-info/
+build/
