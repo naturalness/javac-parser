@@ -20,7 +20,7 @@ assert os.path.isfile(JAR_PATH)
 
 
 setup(name='javac-parser',
-      version='0.1.3',
+      version='0.1.4',
       py_modules=['javac_parser'],
       data_files=[('share/javac-parser', [JAR_PATH])],
       install_requires=['py4j==0.10.6'],
