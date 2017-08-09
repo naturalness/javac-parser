@@ -31,6 +31,7 @@ setup(name='javac-parser',
       author_email='easantos@ualberta.ca, joshua2@ualberta.ca',
       description='Exposes the OpenJDK Java parser and scanner to Python',
       license='AGPL3+',
+      url='https://github.com/naturalness/javac-parser',
       keywords='java javac parser scanner lexer tokenizer',
       classifiers=[
             'License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)'
