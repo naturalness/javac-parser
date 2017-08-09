@@ -13,6 +13,8 @@ PY4J_JAR = os.path.join(sys.prefix, 'share/py4j/py4j0.10.6.jar')
 JAR_PATH = os.path.join(SOURCE_PATH,
                         "target",
                         "lex-java-1.0-SNAPSHOT-jar-with-dependencies.jar")
+
+# TODO: Do this on some hook that runs AFTER install dependenices but BEFORE sdist/bdist
 if find_executable('mvn'):
       subprocess.check_call("mvn install:install-file -Dfile=" + PY4J_JAR + " -DgroupId=py4j -DartifactId=py4j -Dversion=0.10.6 -Dpackaging=jar -DgeneratePom=true", shell=True)
       subprocess.check_call("mvn package", shell=True)
