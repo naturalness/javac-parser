@@ -12,10 +12,13 @@ import static com.sun.tools.javac.parser.Tokens.*;
 
 import javax.tools.DiagnosticCollector;
 import javax.tools.DiagnosticListener;
+import javax.tools.Diagnostic;
+import javax.tools.JavaFileObject;
 
 import java.util.logging.Logger;
 import java.nio.charset.StandardCharsets;
 import java.io.PrintWriter;
+import java.util.List;
 
 import ca.ualberta.cs.FakeFile;
 import ca.ualberta.cs.Source;
@@ -26,11 +29,11 @@ public class ParserWrapper
     protected ParserFactory factory;
     private static Logger logger = Logger.getLogger("ParserWrapper");
     protected Log log;
-    protected DiagnosticCollector<FakeFile> diagnostics;
+    protected DiagnosticCollector<JavaFileObject> diagnostics;
     
     public ParserWrapper() {
         context = new Context();
-        diagnostics = new DiagnosticCollector<FakeFile>();
+        diagnostics = new DiagnosticCollector<JavaFileObject>();
         context.put(DiagnosticListener.class, diagnostics);
         new JavacFileManager(context, true, StandardCharsets.UTF_8);
         log = Log.instance(context);
@@ -40,21 +43,35 @@ public class ParserWrapper
         factory = ParserFactory.instance(context);
     }
     
-    public void parseIt(String javaSource) {
+    public Source checkSyntax(String javaSource) {
+        List<Diagnostic<? extends JavaFileObject>> diags =
+            parseIt(javaSource);
+        Source source = new Source();
+        for (Diagnostic<? extends JavaFileObject> diag : diags) {
+            Object info[] = new Object[] {
+                diag.getKind().name(),
+                diag.getCode(),
+                diag.getMessage(null),
+                diag.getLineNumber(),
+                diag.getColumnNumber(),
+                diag.getStartPosition(),
+                diag.getEndPosition()
+            };
+            source.add(info);
+        }
+        return source;
+    }
+    
+    
+    public List<Diagnostic<? extends JavaFileObject>> parseIt(String javaSource) {
         JavacParser parser = factory.newParser(javaSource, true, true, true);
         log.useSource(new FakeFile(javaSource));
         Object what = parser.parseCompilationUnit();
+        return diagnostics.getDiagnostics(); 
     }
     
     public int numErrors(String javaSource) {
-        JavacParser parser = factory.newParser(javaSource, true, true, true);
-        log.useSource(new FakeFile(javaSource));
-        Object what = parser.parseCompilationUnit();
-//         logger.info(what.toString());
-//         for (Object x : diagnostics.getDiagnostics()) {
-//             logger.info(x.toString());
-//         }
-       return diagnostics.getDiagnostics().size();
+       return parseIt(javaSource).size();
     }
 
     public Source lexIt(String javaSource) {

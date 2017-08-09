@@ -14,6 +14,10 @@ public class App
     public Source lex(String javaSource) {
         return (new ParserWrapper()).lexIt(javaSource);
     }
+    
+    public Source checkSyntax(String javaSource) {
+        return (new ParserWrapper()).checkSyntax(javaSource);
+    }
 
     public static void main( String[] args )
     {
