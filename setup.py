@@ -29,6 +29,12 @@ class PostDevelopCommand(develop):
         develop.run(self)
 
 
+def readme():
+    import codecs
+    with codecs.open('README.rst', encoding='UTF-8') as readme_file:
+        return readme_file.read()
+
+
 setup(
     name='javac-parser',
     version='0.1.5',
@@ -38,6 +44,7 @@ setup(
     author='Eddie Antonio Santos, Joshua Charles Campbell',
     author_email='easantos@ualberta.ca, joshua2@ualberta.ca',
     description='Exposes the OpenJDK Java parser and scanner to Python',
+    long_description=readme(),
     license='AGPL3+',
     url='https://github.com/naturalness/javac-parser',
     keywords='java javac parser scanner lexer tokenizer',
