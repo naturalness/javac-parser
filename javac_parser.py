@@ -292,6 +292,14 @@ public class Bogus
         error(repr(errs))
         self.assertEqual(len(errs), 1)
 
+    def test_check_syntax_illegal(self):
+        s = """#
+"""     
+        self.java.lex(s)
+        errs = self.java.check_syntax(s)
+        #error(repr(errs))
+        self.assertEqual(len(errs), 2)
+
     def tearDown(self):
         del self.java
 

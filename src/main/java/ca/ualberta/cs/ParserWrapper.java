@@ -64,8 +64,8 @@ public class ParserWrapper
     
     
     public List<Diagnostic<? extends JavaFileObject>> parseIt(String javaSource) {
-        JavacParser parser = factory.newParser(javaSource, true, true, true);
         log.useSource(new FakeFile(javaSource));
+        JavacParser parser = factory.newParser(javaSource, true, true, true);
         Object what = parser.parseCompilationUnit();
         return diagnostics.getDiagnostics(); 
     }
@@ -75,7 +75,8 @@ public class ParserWrapper
     }
 
     public Source lexIt(String javaSource) {
-        log.useSource(new FakeFile(javaSource));
+        FakeFile fakeFile = new FakeFile(javaSource);
+        log.useSource(fakeFile);
         ScannerFactory factory;
         factory = ScannerFactory.instance(context);
         Scanner scanner = factory.newScanner(javaSource, true);
