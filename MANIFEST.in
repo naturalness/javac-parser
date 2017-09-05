@@ -1,2 +1,3 @@
 include pom.xml
 recursive-include src *.java
+include *.pyi 
