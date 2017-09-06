@@ -5,6 +5,7 @@ from setuptools.command.install import install
 import codecs
 import os
 import sys
+import shutil
 import unittest
 from subprocess import check_call
 
@@ -22,11 +23,9 @@ class PostDevelopCommand(develop):
     done on a development machine.
     """
     def run(self):
+        # Remove target/ to FORCE the recreation of the JAR files.
+        shutil.rmtree(os.path.join(SOURCE_PATH, 'target'), ignore_errors=True)
         # Note that py4j MUST be installed for this to work!
-        try:
-            os.unlink(JAR_PATH)
-        except OSError:
-            pass  # ignore if file does not exist.
         check_call("mvn install:install-file -Dfile=" + PY4J_JAR +
                    " -DgroupId=py4j -DartifactId=py4j -Dversion=0.10.6 -Dpackaging=jar -DgeneratePom=true",
                    shell=True)
@@ -35,13 +34,15 @@ class PostDevelopCommand(develop):
         develop.run(self)
 
 
+def simple_test_suite():
+    """Runs tests from javac_parser.py"""
+    test_loader = unittest.TestLoader()
+    return test_loader.discover(SOURCE_PATH, pattern='javac_parser.py')
+
+
 def readme():
     with codecs.open('README.rst', encoding='UTF-8') as readme_file:
         return readme_file.read()
-
-def simple_test_suite():
-    test_loader = unittest.TestLoader()
-    return test_loader.discover(SOURCE_PATH, pattern='javac_parser.py')
 
 
 setup(

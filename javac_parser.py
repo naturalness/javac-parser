@@ -98,7 +98,7 @@ class Java(object):
                 self.gateway.entry_point.getNumParseErrors("")
 
     def __del__(self):
-        #error("killing %i" % self.java_server.pid)
+        debug("killing %i" % self.java_server.pid)
         if hasattr(self, 'gateway'):
             self.gateway.shutdown()
             self.gateway.close()
@@ -230,7 +230,6 @@ public class Bogus {
 }
 """
         lexed = self.java.lex(s)
-        #error(lexed)
         self.assertEqual(len(lexed), 34)
         self.assertEqual(lexed[0][0], 'PACKAGE')
         self.assertEqual(lexed[0][1], 'package')
@@ -244,7 +243,6 @@ public class Bogus {
     def test_lex_error(self):
         s = "String x = \\"
         lexed = self.java.lex(s)
-        #error(repr(lexed))
         self.assertEqual(lexed[3][0], 'ERROR')
 
     def test_check_syntax_ok(self):
@@ -259,7 +257,6 @@ public class Bogus {
 }
 """
         errs = self.java.check_syntax(s)
-        #error(repr(errs))
         self.assertEqual(len(errs), 0)
 
     def test_check_syntax_eof(self):
@@ -274,7 +271,6 @@ public class Bogus {
 
 """
         errs = self.java.check_syntax(s)
-        #error(repr(errs))
         self.assertEqual(len(errs), 1)
 
     def test_check_syntax_ob(self):
@@ -289,7 +285,6 @@ public class Bogus
 }
 """
         errs = self.java.check_syntax(s)
-        error(repr(errs))
         self.assertEqual(len(errs), 1)
 
     def test_check_syntax_illegal(self):
@@ -297,7 +292,6 @@ public class Bogus
 """     
         self.java.lex(s)
         errs = self.java.check_syntax(s)
-        #error(repr(errs))
         self.assertEqual(len(errs), 2)
 
     def tearDown(self):
