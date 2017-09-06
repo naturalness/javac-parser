@@ -98,14 +98,18 @@ class Java(object):
                 self.gateway.entry_point.getNumParseErrors("")
 
     def __del__(self):
+        # In __del__, we can't assume any of our properties still exist :c
         if hasattr(self, 'gateway'):
             self.gateway.shutdown()
             self.gateway.close()
             del self.gateway
+
         if hasattr(self, 'java_server'):
+            # Terminate the Java server process and all of its children.
             debug("killing %i" % self.java_server.pid)
             os.killpg(os.getpgid(self.java_server.pid), signal.SIGTERM)
             self.java_server.wait()
+            del self.java_server
 
     def get_num_parse_errors(self, java_source):
         """
