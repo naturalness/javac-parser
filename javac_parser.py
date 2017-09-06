@@ -62,7 +62,7 @@ class Java(object):
             return False
         else:
             return True
-    
+
     def __init__(self):
         java_cmd = subprocess.check_output("which java",
                                              shell=True).rstrip()
@@ -98,12 +98,12 @@ class Java(object):
                 self.gateway.entry_point.getNumParseErrors("")
 
     def __del__(self):
-        debug("killing %i" % self.java_server.pid)
         if hasattr(self, 'gateway'):
             self.gateway.shutdown()
             self.gateway.close()
             del self.gateway
         if hasattr(self, 'java_server'):
+            debug("killing %i" % self.java_server.pid)
             os.killpg(os.getpgid(self.java_server.pid), signal.SIGTERM)
             self.java_server.wait()
 
@@ -113,7 +113,7 @@ class Java(object):
         Returns the number of diagnostics generated.
         """
         return self.gateway.entry_point.getNumParseErrors(java_source)
-    
+
     def check_syntax(self, java_source):
         """
         Attempt to parse a Java source string.
@@ -279,7 +279,7 @@ package ca.ualberta.cs;
 
 import java.util.logging.Logger;
 
-public class Bogus 
+public class Bogus
     public int a = 1;
     public String s = "hamburgers";
 }
@@ -289,7 +289,7 @@ public class Bogus
 
     def test_check_syntax_illegal(self):
         s = """#
-"""     
+"""
         self.java.lex(s)
         errs = self.java.check_syntax(s)
         self.assertEqual(len(errs), 2)
