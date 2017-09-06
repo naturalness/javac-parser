@@ -47,7 +47,7 @@ def readme():
 
 setup(
     name='javac-parser',
-    version='0.1.7',
+    version='0.1.8',
     py_modules=['javac_parser'],
     install_requires=['py4j==0.10.6'],
     data_files=[('share/javac-parser', [JAR_PATH])],

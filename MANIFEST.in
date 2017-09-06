@@ -1,3 +1,4 @@
 include pom.xml
 recursive-include src *.java
-include *.pyi 
+include javac_parser.pyi
+include target/*.jar
