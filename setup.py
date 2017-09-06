@@ -2,8 +2,10 @@ from setuptools import setup
 from setuptools.command.develop import develop
 from setuptools.command.install import install
 
+import codecs
 import os
 import sys
+import unittest
 from subprocess import check_call
 
 
@@ -21,6 +23,10 @@ class PostDevelopCommand(develop):
     """
     def run(self):
         # Note that py4j MUST be installed for this to work!
+        try:
+            os.unlink(JAR_PATH)
+        except OSError:
+            pass  # ignore if file does not exist.
         check_call("mvn install:install-file -Dfile=" + PY4J_JAR +
                    " -DgroupId=py4j -DartifactId=py4j -Dversion=0.10.6 -Dpackaging=jar -DgeneratePom=true",
                    shell=True)
@@ -30,19 +36,23 @@ class PostDevelopCommand(develop):
 
 
 def readme():
-    import codecs
     with codecs.open('README.rst', encoding='UTF-8') as readme_file:
         return readme_file.read()
+
+def simple_test_suite():
+    test_loader = unittest.TestLoader()
+    return test_loader.discover(SOURCE_PATH, pattern='javac_parser.py')
 
 
 setup(
     name='javac-parser',
-    version='0.1.6',
+    version='0.1.7',
     py_modules=['javac_parser'],
     install_requires=['py4j==0.10.6'],
+    data_files=[('share/javac-parser', [JAR_PATH])],
 
-    author='Eddie Antonio Santos, Joshua Charles Campbell',
-    author_email='easantos@ualberta.ca, joshua2@ualberta.ca',
+    author='Joshua Charles Campbell, Eddie Antonio Santos',
+    author_email='joshua2@ualberta.ca, easantos@ualberta.ca',
     description='Exposes the OpenJDK Java parser and scanner to Python',
     long_description=readme(),
     license='AGPL3+',
@@ -55,5 +65,5 @@ setup(
     cmdclass={
         'develop': PostDevelopCommand,
     },
-    data_files=[('share/javac-parser', [JAR_PATH])],
+    test_suite='setup.simple_test_suite',
 )
