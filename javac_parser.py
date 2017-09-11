@@ -141,7 +141,7 @@ class Java(object):
     @staticmethod
     def fix_extra_quotes(lexeme):
         l = tuple(lexeme)
-    
+
     def lex_call(self, java_source):
         #return self.gateway.entry_point.lex(java_source)
         b = self.gateway.entry_point.lexFlat(java_source)
@@ -307,7 +307,10 @@ public class Bogus
         errs = self.java.check_syntax(s)
         self.assertEqual(len(errs), 2)
 
-    def test_check_syntax_hueg(self):
+    def test_check_syntax_huge(self):
+        # Generate a MASSIVE syntactically-valid Java file.
+        # Create a few thousand copies of this method enough changes to make
+        # it valid.
         def sub(i):
             t = """
     public void test##() {
@@ -331,12 +334,11 @@ public class Bogus {
 %s
 }
 """ % ("\n".join([sub(i) for i in range(0, 4700)]))
-        self.java.lex(s)
+        tokens = list(self.java.lex(s))
+        # There will be AT LEAST the amount of tokens as amount of lines.
+        assert len(tokens) >= 4700
+
         errs = self.java.check_syntax(s)
-        if os.environ.get('PROFILE') is not None:
-            import cProfile
-            java = self.java
-            cProfile.runctx('java.lex(s)', globals(), locals(), filename=os.environ.get('PROFILE'))
         self.assertEqual(len(errs), 0)
 
     def tearDown(self):
@@ -344,4 +346,4 @@ public class Bogus {
 
 if __name__ == '__main__':
     unittest.main()
-    
+
