@@ -27,6 +27,7 @@ import subprocess
 import time
 import signal
 from bisect import bisect_right
+import string
 
 import py4j
 from py4j.java_gateway import JavaGateway
@@ -297,6 +298,34 @@ public class Bogus
         self.java.lex(s)
         errs = self.java.check_syntax(s)
         self.assertEqual(len(errs), 2)
+
+    def test_check_syntax_hueg(self):
+        def sub(i):
+            t = """
+    public void test##() {
+        ParserWrapper sw = new ParserWrapper();
+        assertEquals(1, sw.numErrors(
+            "package ca.ualberta.cs;\\n"
+            + "import java.util.logging.Logger;\\n"
+            + "public class ParserWrapper {\\n"
+            + "  public int a = ##;\\n"
+            + "}\\n"
+            + "##:\\n"
+        ));}
+"""
+            return t.replace("##", str(i))
+        s = """
+package ca.ualberta.cs;
+
+import java.util.logging.Logger;
+
+public class Bogus {
+%s
+}
+""" % ("\n".join([sub(i) for i in range(0, 4700)]))
+        self.java.lex(s)
+        errs = self.java.check_syntax(s)
+        self.assertEqual(len(errs), 0)
 
     def tearDown(self):
         del self.java
