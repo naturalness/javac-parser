@@ -49,7 +49,10 @@ setup(
     name='javac-parser',
     version='0.1.9',
     py_modules=['javac_parser'],
-    install_requires=['py4j==0.10.6'],
+    install_requires=[
+        'py4j==0.10.6',
+        'msgpack-python>=0.4.8'
+    ],
     data_files=[('share/javac-parser', [JAR_PATH])],
 
     author='Joshua Charles Campbell, Eddie Antonio Santos',
