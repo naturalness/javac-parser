@@ -32,6 +32,8 @@ import string
 import py4j
 from py4j.java_gateway import JavaGateway
 
+import msgpack
+
 SOURCE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -139,6 +141,11 @@ class Java(object):
     @staticmethod
     def fix_extra_quotes(lexeme):
         l = tuple(lexeme)
+    
+    def lex_call(self, java_source):
+        #return self.gateway.entry_point.lex(java_source)
+        b = self.gateway.entry_point.lexFlat(java_source)
+        return msgpack.unpackb(b)
 
     def lex(self, java_source):
         """
@@ -166,16 +173,17 @@ class Java(object):
 
         def convert(lexeme):
             t, v, s, e, string = tuple(lexeme)
+            string = string.decode('utf-8')
             assert not (' \n\r\t' in string)
             return (
-                t,
-                v,
+                t.decode('utf-8'),
+                v.decode('utf-8'),
                 convert_position(s),
                 convert_position(e),
                 string
                 )
 
-        return [convert(l) for l in self.gateway.entry_point.lex(java_source)]
+        return [convert(l) for l in self.lex_call(java_source)]
 
 import unittest
 class TestJava(unittest.TestCase):
@@ -325,6 +333,10 @@ public class Bogus {
 """ % ("\n".join([sub(i) for i in range(0, 4700)]))
         self.java.lex(s)
         errs = self.java.check_syntax(s)
+        if os.environ.get('PROFILE') is not None:
+            import cProfile
+            java = self.java
+            cProfile.runctx('java.lex(s)', globals(), locals(), filename=os.environ.get('PROFILE'))
         self.assertEqual(len(errs), 0)
 
     def tearDown(self):
@@ -332,3 +344,4 @@ public class Bogus {
 
 if __name__ == '__main__':
     unittest.main()
+    

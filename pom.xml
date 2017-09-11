@@ -25,6 +25,11 @@
         <artifactId>py4j</artifactId>
         <version>0.10.6</version>
     </dependency>
+    <dependency>
+      <groupId>org.msgpack</groupId>
+      <artifactId>jackson-dataformat-msgpack</artifactId>
+      <version>0.8.13</version>
+    </dependency>  
   </dependencies>
   <!-- from https://stackoverflow.com/questions/1729054/including-dependencies-in-a-jar-with-maven -->
   <build>
