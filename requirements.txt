@@ -1,2 +1,2 @@
 py4j==0.10.6
-msgpack-python=0.4.8
+msgpack-python==0.4.8
