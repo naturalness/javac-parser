@@ -33,8 +33,10 @@ public class AppTest
     /**
      * Rigourous Test :-)
      */
-    public void testApp()
+    public void testLexFlat()
     {
-        assertTrue( true );
+        App app = new App();
+        byte[] b = app.lexFlat("");
+        assertEquals(0x90, b[0] & 0xF0);
     }
 }
