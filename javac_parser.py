@@ -30,12 +30,11 @@ from bisect import bisect_right
 import string
 
 import py4j
-from py4j.java_gateway import JavaGateway
+from py4j.java_gateway import JavaGateway, launch_gateway, GatewayParameters
 
 import msgpack
 
 SOURCE_PATH = os.path.dirname(os.path.abspath(__file__))
-
 
 def find_jar_path():
     "Tries to find where the lexer JAR is."
@@ -58,9 +57,15 @@ JAR_PATH = find_jar_path()
 class Java(object):
     def check_alive(self):
         if not hasattr(self, 'gateway'):
-            self.gateway = JavaGateway()
+            if hasattr(self, 'java_port'):
+                self.gateway = JavaGateway(
+                    gateway_parameters=GatewayParameters(port=self.java_port)
+                    )
+            else:
+                return False
         try:
-            assert self.gateway.entry_point.getNumParseErrors("") == 0
+            self.app = self.gateway.jvm.ca.ualberta.cs.App()
+            assert self.app.getNumParseErrors("") == 0
         except py4j.protocol.Py4JNetworkError:
             return False
         else:
@@ -69,11 +74,6 @@ class Java(object):
     def __init__(self):
         java_cmd = subprocess.check_output("which java",
                                              shell=True).rstrip()
-        if self.check_alive():
-            warn("Old java server still running... re-using it.")
-            warn("Java server will not be killed on exit.")
-            warn("Please kill it manually.")
-            return
         if os.path.isfile(JAR_PATH):
             pass
         else:
@@ -81,45 +81,41 @@ class Java(object):
             subprocess.check_call("mvn install:install-file -Dfile=" + py4j_jar + " -DgroupId=py4j -DartifactId=py4j -Dversion=0.10.6 -Dpackaging=jar -DgeneratePom=true", shell=True)
             subprocess.check_call("mvn package", shell=True)
             assert os.path.isfile(JAR_PATH)
-        self.java_server = subprocess.Popen(
-            [
-                java_cmd,
-                "-jar",
-                JAR_PATH
-            ],
-            preexec_fn=os.setsid
-        )
-        timeout = 10 # seconds
-        tries = 1000
-        while not self.check_alive():
-            time.sleep(timeout/tries)
-            tries -= 1
-            if tries > 0:
-                continue
-            else:
-                error("Couldn't connect to java server...")
-                self.gateway.entry_point.getNumParseErrors("")
+        self.java_port = launch_gateway(jarpath=JAR_PATH,
+                                        classpath="ca.ualberta.cs.App",
+                                        die_on_exit=True,
+                                        redirect_stdout=sys.stdout,
+                                        redirect_stderr=sys.stderr,
+                                        java_path=java_cmd
+                                        )
+        if not self.check_alive():
+            error("Couldn't connect to java server...")
 
     def __del__(self):
+        if hasattr(self, 'app'):
+            del self.app
+        
         # In __del__, we can't assume any of our properties still exist :c
         if hasattr(self, 'gateway'):
             self.gateway.shutdown()
             self.gateway.close()
             del self.gateway
-
-        if hasattr(self, 'java_server'):
-            # Terminate the Java server process and all of its children.
-            debug("killing %i" % self.java_server.pid)
-            os.killpg(os.getpgid(self.java_server.pid), signal.SIGTERM)
-            self.java_server.wait()
-            del self.java_server
-
+        
+        if hasattr(self, 'java_port'):
+            del self.java_port
+    
+    def __enter__(self):
+        return self
+    
+    def __exit__(self):
+        self.__del__()
+    
     def get_num_parse_errors(self, java_source):
         """
         Attempt to parse a Java source string.
         Returns the number of diagnostics generated.
         """
-        return self.gateway.entry_point.getNumParseErrors(java_source)
+        return self.app.getNumParseErrors(java_source)
 
     def check_syntax(self, java_source):
         """
@@ -135,7 +131,7 @@ class Java(object):
             6. End index
         """
         return [
-            tuple(i) for i in self.gateway.entry_point.checkSyntax(java_source)
+            tuple(i) for i in self.app.checkSyntax(java_source)
             ]
 
     @staticmethod
@@ -143,8 +139,8 @@ class Java(object):
         l = tuple(lexeme)
 
     def lex_call(self, java_source):
-        #return self.gateway.entry_point.lex(java_source)
-        b = self.gateway.entry_point.lexFlat(java_source)
+        #return self.app.lex(java_source)
+        b = self.app.lexFlat(java_source)
         return msgpack.unpackb(b)
 
     def lex(self, java_source):

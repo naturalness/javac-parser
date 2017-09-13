@@ -38,7 +38,7 @@ public class App
     {
         GatewayServer gatewayServer = new GatewayServer(new App());
         gatewayServer.start();
-//         System.out.println("Java Lexer/Parser Server Started");
+        System.out.println("Java Lexer/Parser Server Started");
     }
 }
 
