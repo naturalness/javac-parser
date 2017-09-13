@@ -55,42 +55,28 @@ JAR_PATH = find_jar_path()
 
 
 class Java(object):
-    def check_alive(self):
-        if not hasattr(self, 'gateway'):
-            if hasattr(self, 'java_port'):
-                self.gateway = JavaGateway(
-                    gateway_parameters=GatewayParameters(port=self.java_port)
-                    )
-            else:
-                return False
-        try:
-            self.app = self.gateway.jvm.ca.ualberta.cs.App()
-            assert self.app.getNumParseErrors("") == 0
-        except py4j.protocol.Py4JNetworkError:
-            return False
-        else:
-            return True
-
+    def build(self):
+        py4j_jar = os.path.join(sys.prefix, 'share/py4j/py4j0.10.6.jar')
+        subprocess.check_call("mvn install:install-file -Dfile=" + py4j_jar + " -DgroupId=py4j -DartifactId=py4j -Dversion=0.10.6 -Dpackaging=jar -DgeneratePom=true", shell=True)
+        subprocess.check_call("mvn package", shell=True)
+        assert os.path.isfile(JAR_PATH)
+    
     def __init__(self):
-        java_cmd = subprocess.check_output("which java",
-                                             shell=True).rstrip()
         if os.path.isfile(JAR_PATH):
             pass
         else:
-            py4j_jar = os.path.join(sys.prefix, 'share/py4j/py4j0.10.6.jar')
-            subprocess.check_call("mvn install:install-file -Dfile=" + py4j_jar + " -DgroupId=py4j -DartifactId=py4j -Dversion=0.10.6 -Dpackaging=jar -DgeneratePom=true", shell=True)
-            subprocess.check_call("mvn package", shell=True)
-            assert os.path.isfile(JAR_PATH)
-        self.java_port = launch_gateway(jarpath=JAR_PATH,
-                                        classpath="ca.ualberta.cs.App",
+            self.build()
+        java_port = launch_gateway(jarpath=JAR_PATH,
                                         die_on_exit=True,
                                         redirect_stdout=sys.stdout,
                                         redirect_stderr=sys.stderr,
-                                        java_path=java_cmd
                                         )
-        if not self.check_alive():
-            error("Couldn't connect to java server...")
-
+        self.gateway = JavaGateway(
+            gateway_parameters=GatewayParameters(port=java_port)
+            )
+        self.app = self.gateway.jvm.ca.ualberta.cs.App()
+        assert self.app.getNumParseErrors("") == 0
+        
     def __del__(self):
         if hasattr(self, 'app'):
             del self.app
@@ -101,9 +87,6 @@ class Java(object):
             self.gateway.close()
             del self.gateway
         
-        if hasattr(self, 'java_port'):
-            del self.java_port
-    
     def __enter__(self):
         return self
     
