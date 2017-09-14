@@ -14,27 +14,21 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging
-logger = logging.getLogger(__name__)
-error = logger.error
-warn = logger.warn
-info = logger.info
-debug = logger.debug
-
-import sys
 import os
-import subprocess
-import time
 import signal
+import subprocess
+import sys
+import time
+import unittest
 from bisect import bisect_right
-import string
 
+import msgpack
 import py4j
 from py4j.java_gateway import JavaGateway, launch_gateway, GatewayParameters
 
-import msgpack
 
 SOURCE_PATH = os.path.dirname(os.path.abspath(__file__))
+
 
 def find_jar_path():
     "Tries to find where the lexer JAR is."
@@ -48,8 +42,9 @@ def find_jar_path():
     for path in paths:
         if os.path.exists(path):
             return path
-    # Maven.
+    # Maven. The default in case the JAR must be rebuilt.
     return os.path.join(SOURCE_PATH, "target", jar_file)
+
 
 JAR_PATH = find_jar_path()
 
@@ -57,32 +52,34 @@ JAR_PATH = find_jar_path()
 class Java(object):
     def build(self):
         py4j_jar = os.path.join(sys.prefix, 'share/py4j/py4j0.10.6.jar')
-        subprocess.check_call("mvn install:install-file -Dfile=" + py4j_jar + " -DgroupId=py4j -DartifactId=py4j -Dversion=0.10.6 -Dpackaging=jar -DgeneratePom=true", shell=True)
+        subprocess.check_call("mvn install:install-file -Dfile=" + py4j_jar +
+                              " -DgroupId=py4j -DartifactId=py4j"
+                              " -Dversion=0.10.6 -Dpackaging=jar"
+                              " -DgeneratePom=true", shell=True)
         subprocess.check_call("mvn package", shell=True)
         assert os.path.isfile(JAR_PATH)
-    
+
     def __init__(self):
         if os.path.isfile(JAR_PATH):
             pass
         else:
             self.build()
         java_port = launch_gateway(jarpath=JAR_PATH,
-                                        die_on_exit=True,
-                                        redirect_stdout=sys.stdout,
-                                        redirect_stderr=sys.stderr,
-                                        )
+                                   die_on_exit=True,
+                                   redirect_stdout=sys.stdout,
+                                   redirect_stderr=sys.stderr)
         self.gateway = JavaGateway(
             gateway_parameters=GatewayParameters(port=java_port)
-            )
+        )
         self.app = self.gateway.jvm.ca.ualberta.cs.App()
         assert self.app.getNumParseErrors("") == 0
-        
+
     def __enter__(self):
         return self
-    
-    def __exit__(self):
+
+    def __exit__(self, *exc_info):
         self.__del__()
-    
+
     def get_num_parse_errors(self, java_source):
         """
         Attempt to parse a Java source string.
@@ -105,16 +102,11 @@ class Java(object):
         """
         return [
             tuple(i) for i in self.app.checkSyntax(java_source)
-            ]
-
-    @staticmethod
-    def fix_extra_quotes(lexeme):
-        l = tuple(lexeme)
+        ]
 
     def lex_call(self, java_source):
-        #return self.app.lex(java_source)
-        b = self.app.lexFlat(java_source)
-        return msgpack.unpackb(b)
+        binary = self.app.lexFlat(java_source)
+        return msgpack.unpackb(binary)
 
     def lex(self, java_source):
         """
@@ -130,31 +122,33 @@ class Java(object):
         lpos = 0
         lines = [0]
         while True:
-            lpos = java_source.find('\n', lpos)+1
+            lpos = java_source.find('\n', lpos) + 1
             if lpos <= 0:
                 break
             lines.append(lpos)
 
         def convert_position(i):
             line = bisect_right(lines, i)
-            col = i-lines[line-1]
+            col = i - lines[line - 1]
             return (line, col)
 
         def convert(lexeme):
             t, v, s, e, string = tuple(lexeme)
             string = string.decode('utf-8')
-            assert not (' \n\r\t' in string)
+            assert ' \n\r\t' not in string
             return (
                 t.decode('utf-8'),
                 v.decode('utf-8'),
                 convert_position(s),
                 convert_position(e),
                 string
-                )
+            )
 
         return [convert(l) for l in self.lex_call(java_source)]
 
-import unittest
+
+# Test cases
+
 class TestJava(unittest.TestCase):
     def setUp(self):
         self.java = Java()
@@ -313,6 +307,6 @@ public class Bogus {
     def tearDown(self):
         del self.java
 
+
 if __name__ == '__main__':
     unittest.main()
-
