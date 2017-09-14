@@ -10,7 +10,7 @@ import ca.ualberta.cs.ParserWrapper;
 /**
  * Unit tests for scanner wrapper.
  */
-public class ParserWrapperTest 
+public class ParserWrapperTest
     extends TestCase
 {
     /**
@@ -97,5 +97,16 @@ public class ParserWrapperTest
     {
         ParserWrapper sw = new ParserWrapper();
         assertEquals(6, sw.lexIt("a = 1 + 2").size());
+    }
+
+    /**
+     * Test ability to cope with The Java® Language Specification §3.5.
+     *
+     * https://docs.oracle.com/javase/specs/jls/se8/html/jls-3.html#jls-3.5
+     */
+    public void testInputElementSub()
+    {
+        ParserWrapper sw = new ParserWrapper();
+        assertEquals(6, sw.lexIt("class A{}\u001a").size());
     }
 }
