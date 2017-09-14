@@ -304,6 +304,42 @@ public class Bogus {
         errs = self.java.check_syntax(s)
         self.assertEqual(len(errs), 0)
 
+    def test_spawning_new_process(self):
+        """
+        If we spawn a new process, we should be able to independently spawn a
+        new Java server for it, which should then be shut down once that PID
+        is no longer alive.
+        """
+        from multiprocessing import Process
+
+        # TODO: Acquiesce and use psutils to figure out child processes.
+        program = "class Hello {}"
+
+        # Force the Java process to be spawned in this process.
+        self.assertEqual(5, len(self.java.lex(program)))
+        # Check that there are AT LEAST one java processes in the system.
+        pids_before = self.set_of_java_pids()
+        self.assertTrue(len(pids_before) >= 1)
+
+        # TODO: figure out process
+        def spawn_new_java_gateway(source):
+            java_2 = Java()
+            assert len(java_2.lex(source)) == 5
+        p = Process(target=spawn_new_java_gateway, args=(program,))
+        p.start()
+        p.join()
+
+        # Check that our humble Java process is still running.
+        pids_now = self.set_of_java_pids() & pids_before
+        self.assertTrue(len(pids_before) >= 1)
+
+    @staticmethod
+    def set_of_java_pids():
+        from subprocess import check_output
+        return set(pid for pid in
+                   check_output('pgrep java', shell=True).split(b'\n')
+                   if pid.strip() != '')
+
     def tearDown(self):
         del self.java
 
