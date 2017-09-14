@@ -6,6 +6,7 @@ import junit.framework.TestSuite;
 import junit.framework.Assert.*;
 
 import ca.ualberta.cs.ParserWrapper;
+import ca.ualberta.cs.Source;
 
 /**
  * Unit tests for scanner wrapper.
@@ -97,6 +98,25 @@ public class ParserWrapperTest
     {
         ParserWrapper sw = new ParserWrapper();
         assertEquals(6, sw.lexIt("a = 1 + 2").size());
+    }
+
+
+    /**
+     * Test ability to cope with The Java® Language Specification §3.5.
+     *
+     * https://docs.oracle.com/javase/specs/jls/se8/html/jls-3.html#jls-3.5
+     */
+    public void testUnicodeEscapes()
+    {
+        ParserWrapper sw = new ParserWrapper();
+        String program = "public class \\u0042 {}";
+
+        assertEquals(0, (new ParserWrapper()).numErrors(program));
+        Source src = sw.lexIt(program);
+        /* Regression: lexing the Unicode escape in the class name should
+         * return "B".
+         * Discussion: https://github.com/naturalness/javac-parser/issues/1 */
+        assertEquals("B", src.get(2)[1]);
     }
 
     /**
