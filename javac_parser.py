@@ -77,16 +77,6 @@ class Java(object):
         self.app = self.gateway.jvm.ca.ualberta.cs.App()
         assert self.app.getNumParseErrors("") == 0
         
-    def __del__(self):
-        if hasattr(self, 'app'):
-            del self.app
-        
-        # In __del__, we can't assume any of our properties still exist :c
-        if hasattr(self, 'gateway'):
-            self.gateway.shutdown()
-            self.gateway.close()
-            del self.gateway
-        
     def __enter__(self):
         return self
     
