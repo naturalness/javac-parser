@@ -127,6 +127,6 @@ public class ParserWrapperTest
     public void testInputElementSub()
     {
         ParserWrapper sw = new ParserWrapper();
-        assertEquals(6, sw.lexIt("class A{}\u001a").size());
+        assertEquals(5, sw.lexIt("class A{}\u001a").size());
     }
 }

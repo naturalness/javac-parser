@@ -8,7 +8,7 @@ import com.sun.tools.javac.parser.JavacParser;
 import com.sun.tools.javac.file.JavacFileManager;
 import com.sun.tools.javac.parser.ScannerFactory;
 import com.sun.tools.javac.parser.Scanner;
-import static com.sun.tools.javac.parser.Tokens.*;
+import com.sun.tools.javac.parser.Tokens.*;
 
 import javax.tools.DiagnosticCollector;
 import javax.tools.DiagnosticListener;
@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 import java.nio.charset.StandardCharsets;
 import java.io.PrintWriter;
 import java.util.List;
+import java.lang.Enum;
 
 import ca.ualberta.cs.FakeFile;
 import ca.ualberta.cs.Source;
@@ -75,6 +76,7 @@ public class ParserWrapper
     }
 
     public Source lexIt(String javaSource) {
+        logger.warning("" + javaSource.length());
         FakeFile fakeFile = new FakeFile(javaSource);
         log.useSource(fakeFile);
         ScannerFactory factory;
@@ -101,11 +103,30 @@ public class ParserWrapper
                     value = str;
                 }
             }
+            int start = prevToken.pos;
+            int end = prevToken.endPos;
+            logger.warning("" + start + " " + end + " " + javaSource.length());
+            if (start > end) {
+                if (prevToken.kind != TokenKind.EOF) {
+                    throw new RuntimeException("Talk shit get hit.");
+                }
+                start = end;
+            }
+            String val;
+            try {
+                val = prevToken.name().toString();
+            } catch (UnsupportedOperationException e) {
+                try {
+                    val = prevToken.stringVal();
+                } catch (UnsupportedOperationException eb) {
+                    val = javaSource.substring(start, end);
+                }
+            }
             Object lexeme[] = new Object[] {
                 prevToken.kind.name(), 
-                javaSource.substring(prevToken.pos, prevToken.endPos),
-                prevToken.pos, 
-                prevToken.endPos, 
+                val,
+                start, 
+                end, 
                 str
             };
             source.add(lexeme);
