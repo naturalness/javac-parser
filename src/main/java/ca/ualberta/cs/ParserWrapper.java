@@ -76,7 +76,6 @@ public class ParserWrapper
     }
 
     public Source lexIt(String javaSource) {
-        logger.warning("" + javaSource.length());
         FakeFile fakeFile = new FakeFile(javaSource);
         log.useSource(fakeFile);
         ScannerFactory factory;
@@ -105,7 +104,6 @@ public class ParserWrapper
             }
             int start = prevToken.pos;
             int end = prevToken.endPos;
-            logger.warning("" + start + " " + end + " " + javaSource.length());
             if (start > end) {
                 if (prevToken.kind != TokenKind.EOF) {
                     throw new RuntimeException("Talk shit get hit.");
