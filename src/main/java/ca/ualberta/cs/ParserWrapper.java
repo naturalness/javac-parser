@@ -86,20 +86,13 @@ public class ParserWrapper
         do  {
             scanner.nextToken();
             prevToken = scanner.token();
-            String value;
             String str;
             try {
                 str = prevToken.name().toString();
-                value = str;
             } catch (UnsupportedOperationException e) {
                 str = prevToken.kind.toString();
                 if (str.charAt(0) == '\'') {
                     str = str.substring(1, str.length() - 1);
-                }
-                try {
-                    value = prevToken.stringVal();
-                } catch (UnsupportedOperationException ee) {
-                    value = str;
                 }
             }
             int start = prevToken.pos;
@@ -115,7 +108,8 @@ public class ParserWrapper
                 val = prevToken.name().toString();
             } catch (UnsupportedOperationException e) {
                 try {
-                    val = prevToken.stringVal();
+                    val = "\"" + prevToken.stringVal() + "\"";
+                    val = javaSource.substring(start, end);
                 } catch (UnsupportedOperationException eb) {
                     val = javaSource.substring(start, end);
                 }

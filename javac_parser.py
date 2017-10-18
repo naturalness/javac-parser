@@ -130,7 +130,7 @@ class Java(object):
         def convert_position(i):
             line = bisect_right(lines, i)
             col = i - lines[line - 1]
-            return (line, col)
+            return (line, col, i)
 
         def convert(lexeme):
             t, v, s, e, string = tuple(lexeme)
@@ -145,7 +145,6 @@ class Java(object):
             )
 
         return [convert(l) for l in self.lex_call(java_source)]
-
 
 # Test cases
 
