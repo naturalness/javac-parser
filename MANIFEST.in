@@ -1,2 +1,1 @@
-include javac_parser.pyi
-include target/*.jar
+include javac_parser/*.jar
