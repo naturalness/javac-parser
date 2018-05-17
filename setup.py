@@ -109,6 +109,7 @@ setup(
     author='Joshua Charles Campbell, Eddie Antonio Santos',
     author_email='joshua2@ualberta.ca, easantos@ualberta.ca',
     long_description=readme(),
+    long_description_content_type='text/markdown',
     url='https://github.com/naturalness/javac-parser',
     packages=find_packages(exclude=('tests',)),
 
