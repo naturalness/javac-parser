@@ -1,6 +1,5 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 from setuptools.command.develop import develop
-from setuptools.command.install import install
 
 import codecs
 import os
@@ -11,6 +10,7 @@ from subprocess import check_call
 
 
 SOURCE_PATH = os.path.dirname(os.path.abspath(__file__))
+TEST_PATH = os.path.join(SOURCE_PATH, 'tests')
 PY4J_JAR = os.path.join(sys.prefix, 'share/py4j/py4j0.10.6.jar')
 JAR_PATH = os.path.join(SOURCE_PATH, "target", "lex-java-1.0-SNAPSHOT-jar-with-dependencies.jar")
 
@@ -34,9 +34,9 @@ class PostDevelopCommand(develop):
 
 
 def simple_test_suite():
-    """Runs tests from javac_parser.py"""
+    """Runs tests from tests/"""
     test_loader = unittest.TestLoader()
-    return test_loader.discover(SOURCE_PATH, pattern='javac_parser.py')
+    return test_loader.discover(TEST_PATH)
 
 
 def readme():
@@ -47,19 +47,21 @@ def readme():
 setup(
     name='javac-parser',
     version='0.2.2',
-    py_modules=['javac_parser'],
+    description='Exposes the OpenJDK Java parser and scanner to Python',
+    author='Joshua Charles Campbell, Eddie Antonio Santos',
+    author_email='joshua2@ualberta.ca, easantos@ualberta.ca',
+    long_description=readme(),
+    url='https://github.com/naturalness/javac-parser',
+    packages=find_packages(exclude=('tests',)),
+
     install_requires=[
         'py4j==0.10.6',
         'msgpack-python>=0.4.8'
     ],
+    include_package_data=True,
     data_files=[('share/javac-parser', [JAR_PATH])],
 
-    author='Joshua Charles Campbell, Eddie Antonio Santos',
-    author_email='joshua2@ualberta.ca, easantos@ualberta.ca',
-    description='Exposes the OpenJDK Java parser and scanner to Python',
-    long_description=readme(),
     license='AGPL3+',
-    url='https://github.com/naturalness/javac-parser',
     keywords='java javac parser scanner lexer tokenizer',
     classifiers=[
         'License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)'
