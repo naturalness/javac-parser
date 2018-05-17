@@ -18,8 +18,8 @@ DESCRIPTION = 'Exposes the OpenJDK Java parser and scanner to Python'
 # Various paths that this script needs to check.
 HERE = os.path.dirname(os.path.abspath(__file__))
 TEST_PATH = os.path.join(HERE, 'tests')
-RELATIVE_JAR_PATH = os.path.join("target", "lex-java-1.0-SNAPSHOT-jar-with-dependencies.jar")
-JAR_PATH = os.path.join(HERE, RELATIVE_JAR_PATH)
+JAR_NAME = "lex-java-1.0-SNAPSHOT-jar-with-dependencies.jar"
+DISTRIBUTABLE_JAR_PATH = os.path.join(HERE, os.path.join(NAME, JAR_NAME))
 
 
 class UploadCommand(Command):
@@ -46,6 +46,7 @@ class UploadCommand(Command):
         except OSError:
             pass
 
+        assert os.path.isfile(DISTRIBUTABLE_JAR_PATH)
         self.status('Building Source and Wheel (universal) distribution…')
         os.system('{0} setup.py sdist bdist_wheel --universal'.format(sys.executable))
 
@@ -74,7 +75,7 @@ class PostDevelopCommand(develop):
         rmtree(os.path.join(HERE, 'target'), ignore_errors=True)
         from javac_parser import Java
         Java._build_jar()
-        assert os.path.isfile(JAR_PATH)
+        assert os.path.isfile(DISTRIBUTABLE_JAR_PATH)
         develop.run(self)
 
 
@@ -116,7 +117,7 @@ setup(
         'msgpack-python>=0.4.8'
     ],
     package_data={
-        NAME: [RELATIVE_JAR_PATH]
+        NAME: [JAR_NAME]
     },
     test_suite='setup.simple_test_suite',
 
@@ -128,5 +129,6 @@ setup(
 
     cmdclass={
         'develop': PostDevelopCommand,
+        'upload': UploadCommand,
     },
 )
