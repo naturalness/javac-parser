@@ -87,7 +87,7 @@ def simple_test_suite():
 
 
 def readme():
-    with codecs.open('README.rst', encoding='UTF-8') as readme_file:
+    with codecs.open('README.md', encoding='UTF-8') as readme_file:
         return readme_file.read()
 
 
