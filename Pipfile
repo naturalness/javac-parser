@@ -9,7 +9,9 @@ msgpack-python = "*"
 
 [dev-packages]
 tox = "*"
-twine = "*"
+twine = ">=1.11.0"
+setuptools = ">=38.6.0"
+wheel = ">=0.31.0"
 
 [requires]
 python_version = "3.6"

@@ -2,7 +2,7 @@ javac parser
 ============
 
 
-![PyPI](https://img.shields.io/pypi/v/javac-parser.svg) ![PyPI - License](https://img.shields.io/pypi/l/javac-parser.svg) [![Build Status](https://travis-ci.org/naturalness/javac-parser.svg?branch=master)](https://travis-ci.org/naturalness/javac-parser)
+[![PyPI](https://img.shields.io/pypi/v/javac-parser.svg)](https://pypi.org/project/javac-parser/) [![PyPI - License](https://img.shields.io/pypi/l/javac-parser.svg)](https://tldrlegal.com/license/gnu-affero-general-public-license-v3-(agpl-3.0)) [![Build Status](https://travis-ci.org/naturalness/javac-parser.svg?branch=master)](https://travis-ci.org/naturalness/javac-parser)
 
 Use OpenJDK's Java parser ("javac") in Python!
 
