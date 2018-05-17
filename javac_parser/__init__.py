@@ -17,6 +17,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from .javac_parser import Java
-# from .__version__ import __version__
+from .__version__ import __version__
 
-__all__ = ['JAVA']
+__all__ = ['Java']

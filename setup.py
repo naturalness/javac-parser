@@ -8,11 +8,11 @@ import shutil
 import unittest
 from subprocess import check_call
 
+NAME = 'javac_parser'
 
-SOURCE_PATH = os.path.dirname(os.path.abspath(__file__))
-TEST_PATH = os.path.join(SOURCE_PATH, 'tests')
-PY4J_JAR = os.path.join(sys.prefix, 'share/py4j/py4j0.10.6.jar')
-JAR_PATH = os.path.join(SOURCE_PATH, "target", "lex-java-1.0-SNAPSHOT-jar-with-dependencies.jar")
+HERE = os.path.dirname(os.path.abspath(__file__))
+TEST_PATH = os.path.join(HERE, 'tests')
+JAR_PATH = os.path.join(HERE, "target", "lex-java-1.0-SNAPSHOT-jar-with-dependencies.jar")
 
 
 class PostDevelopCommand(develop):
@@ -26,7 +26,7 @@ class PostDevelopCommand(develop):
     """
     def run(self):
         # Remove target/ to FORCE the recreation of the JAR files.
-        shutil.rmtree(os.path.join(SOURCE_PATH, 'target'), ignore_errors=True)
+        shutil.rmtree(os.path.join(HERE, 'target'), ignore_errors=True)
         from javac_parser import Java
         Java._build_jar()
         assert os.path.isfile(JAR_PATH)
@@ -44,9 +44,20 @@ def readme():
         return readme_file.read()
 
 
+def version():
+    """
+    Load the package's __version__.py module as a dictionary.
+    Derived from: https://github.com/kennethreitz/setup.py/blob/59cfa99b99d87bf2cb2e9176c6dfcacafb532023/setup.py#L41-L46
+    """
+    about = {}
+    with open(os.path.join(HERE, NAME, '__version__.py')) as f:
+        exec(f.read(), about)
+    return about['__version__']
+
+
 setup(
-    name='javac-parser',
-    version='0.2.2',
+    name=NAME,
+    version=version(),
     description='Exposes the OpenJDK Java parser and scanner to Python',
     author='Joshua Charles Campbell, Eddie Antonio Santos',
     author_email='joshua2@ualberta.ca, easantos@ualberta.ca',
