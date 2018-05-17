@@ -1,1 +1,1 @@
-from .javac_parser import Java
+from .javac_parser import Java as Java
