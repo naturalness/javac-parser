@@ -1,19 +1,62 @@
-from setuptools import setup, find_packages
-from setuptools.command.develop import develop
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# Note: To use the 'upload' functionality of this file, you must:
+#   $ pip install twine
 
 import codecs
 import os
 import sys
-import shutil
-import unittest
-from subprocess import check_call
+
+from setuptools import Command, find_packages, setup
+from setuptools.command.develop import develop
 
 NAME = 'javac_parser'
+DESCRIPTION = 'Exposes the OpenJDK Java parser and scanner to Python'
 
+
+# Various paths that this script needs to check.
 HERE = os.path.dirname(os.path.abspath(__file__))
 TEST_PATH = os.path.join(HERE, 'tests')
 RELATIVE_JAR_PATH = os.path.join("target", "lex-java-1.0-SNAPSHOT-jar-with-dependencies.jar")
 JAR_PATH = os.path.join(HERE, RELATIVE_JAR_PATH)
+
+
+class UploadCommand(Command):
+    """Support setup.py upload."""
+
+    description = 'Build and publish the package.'
+    user_options = []
+
+    @staticmethod
+    def status(s):
+        """Prints things in bold."""
+        print('\033[1m{0}\033[0m'.format(s))
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        try:
+            self.status('Removing previous builds…')
+            rmtree(os.path.join(here, 'dist'))
+        except OSError:
+            pass
+
+        self.status('Building Source and Wheel (universal) distribution…')
+        os.system('{0} setup.py sdist bdist_wheel --universal'.format(sys.executable))
+
+        self.status('Uploading the package to PyPi via Twine…')
+        os.system('twine upload dist/*')
+
+        self.status('Pushing git tags…')
+        os.system('git tag v{0}'.format(about['__version__']))
+        os.system('git push --tags')
+
+        sys.exit()
 
 
 class PostDevelopCommand(develop):
@@ -27,7 +70,8 @@ class PostDevelopCommand(develop):
     """
     def run(self):
         # Remove target/ to FORCE the recreation of the JAR files.
-        shutil.rmtree(os.path.join(HERE, 'target'), ignore_errors=True)
+        from shutil import rmtree
+        rmtree(os.path.join(HERE, 'target'), ignore_errors=True)
         from javac_parser import Java
         Java._build_jar()
         assert os.path.isfile(JAR_PATH)
@@ -36,6 +80,7 @@ class PostDevelopCommand(develop):
 
 def simple_test_suite():
     """Runs tests from tests/"""
+    import unittest
     test_loader = unittest.TestLoader()
     return test_loader.discover(TEST_PATH)
 
@@ -59,7 +104,7 @@ def version():
 setup(
     name=NAME,
     version=version(),
-    description='Exposes the OpenJDK Java parser and scanner to Python',
+    description=DESCRIPTION,
     author='Joshua Charles Campbell, Eddie Antonio Santos',
     author_email='joshua2@ualberta.ca, easantos@ualberta.ca',
     long_description=readme(),

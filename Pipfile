@@ -9,6 +9,7 @@ msgpack-python = "*"
 
 [dev-packages]
 tox = "*"
+twine = "*"
 
 [requires]
 python_version = "3.6"
