@@ -20,6 +20,7 @@ import subprocess
 import sys
 import time
 import unittest
+import pkg_resources
 from bisect import bisect_right
 
 import msgpack
@@ -28,22 +29,32 @@ from py4j.java_gateway import JavaGateway, launch_gateway, GatewayParameters
 
 
 SOURCE_PATH = os.path.dirname(os.path.abspath(__file__))
+JAR_FILE = 'lex-java-1.0-SNAPSHOT-jar-with-dependencies.jar'
+GENERATED_JAR_PATH = os.path.join(os.path.dirname(SOURCE_PATH),
+                                  "target", JAR_FILE)
 
 
 def find_jar_path():
     "Tries to find where the lexer JAR is."
     paths = []
-    jar_file = 'lex-java-1.0-SNAPSHOT-jar-with-dependencies.jar'
+
+    # Try to find the JAR file as part of the package.
+    try:
+        return pkg_resources.resource_filename(__name__, JAR_FILE)
+    except OSError:
+        from warnings import warn
+        warn("Could not find " + JAR_FILE + " in package. ")
+
     # setup.py local installation
-    paths.append(os.path.join(SOURCE_PATH, "share/javac-parser", jar_file))
+    paths.append(os.path.join(SOURCE_PATH, "share/javac-parser", JAR_FILE))
     # pip install
-    paths.append(os.path.join(sys.prefix, "share/javac-parser", jar_file))
+    paths.append(os.path.join(sys.prefix, "share/javac-parser", JAR_FILE))
 
     for path in paths:
         if os.path.exists(path):
             return path
     # Maven. The default in case the JAR must be rebuilt.
-    return os.path.join(os.path.dirname(SOURCE_PATH), "target", jar_file)
+    return GENERATED_JAR_PATH
 
 
 JAR_PATH = find_jar_path()
@@ -53,15 +64,19 @@ class Java(object):
     @staticmethod
     def _build_jar():
         """
-        Rebuilds the jar.
+        Rebuilds the JAR from source, using Maven.
         """
+        from shutil import copyfile
         py4j_jar = os.path.join(sys.prefix, 'share/py4j/py4j0.10.6.jar')
         subprocess.check_call("mvn install:install-file -Dfile=" + py4j_jar +
                               " -DgroupId=py4j -DartifactId=py4j"
                               " -Dversion=0.10.6 -Dpackaging=jar"
                               " -DgeneratePom=true", shell=True)
         subprocess.check_call("mvn package", shell=True)
-        assert os.path.isfile(JAR_PATH)
+        assert os.path.isfile(GENERATED_JAR_PATH)
+        # The JAR file NEEDS to be in the package directory for distribution,
+        # so copy it over there.
+        copyfile(GENERATED_JAR_PATH, os.path.join(SOURCE_PATH, JAR_FILE))
 
     def __init__(self):
         if not os.path.isfile(JAR_PATH):

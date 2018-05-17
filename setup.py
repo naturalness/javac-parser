@@ -12,7 +12,8 @@ NAME = 'javac_parser'
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 TEST_PATH = os.path.join(HERE, 'tests')
-JAR_PATH = os.path.join(HERE, "target", "lex-java-1.0-SNAPSHOT-jar-with-dependencies.jar")
+RELATIVE_JAR_PATH = os.path.join("target", "lex-java-1.0-SNAPSHOT-jar-with-dependencies.jar")
+JAR_PATH = os.path.join(HERE, RELATIVE_JAR_PATH)
 
 
 class PostDevelopCommand(develop):
@@ -69,8 +70,10 @@ setup(
         'py4j==0.10.6',
         'msgpack-python>=0.4.8'
     ],
-    include_package_data=True,
-    data_files=[('share/javac-parser', [JAR_PATH])],
+    package_data={
+        NAME: [RELATIVE_JAR_PATH]
+    },
+    test_suite='setup.simple_test_suite',
 
     license='AGPL3+',
     keywords='java javac parser scanner lexer tokenizer',
@@ -81,5 +84,4 @@ setup(
     cmdclass={
         'develop': PostDevelopCommand,
     },
-    test_suite='setup.simple_test_suite',
 )
