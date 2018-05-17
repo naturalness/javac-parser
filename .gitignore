@@ -3,3 +3,4 @@ target/
 dist/
 *.egg-info/
 build/
+.tox

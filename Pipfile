@@ -1,0 +1,14 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+"py4j" = "==0.10.6"
+msgpack-python = "*"
+
+[dev-packages]
+tox = "*"
+
+[requires]
+python_version = "3.6"
