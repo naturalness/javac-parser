@@ -1,2 +1,3 @@
 include README.md
 include javac_parser/*.jar
+include javac_parser/py.typed

@@ -117,7 +117,7 @@ setup(
         'msgpack-python>=0.4.8'
     ],
     package_data={
-        NAME: [JAR_NAME]
+        NAME: [JAR_NAME, 'py.typed', '*.pyi']
     },
     test_suite='setup.simple_test_suite',
 
