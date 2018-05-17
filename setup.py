@@ -19,17 +19,16 @@ class PostDevelopCommand(develop):
     """
     Post-installation for development mode.
 
+    This must occur AFTER py4j is installed.
+
     Generates the JAR file required by the Python module. This should only be
     done on a development machine.
     """
     def run(self):
         # Remove target/ to FORCE the recreation of the JAR files.
         shutil.rmtree(os.path.join(SOURCE_PATH, 'target'), ignore_errors=True)
-        # Note that py4j MUST be installed for this to work!
-        check_call("mvn install:install-file -Dfile=" + PY4J_JAR +
-                   " -DgroupId=py4j -DartifactId=py4j -Dversion=0.10.6 -Dpackaging=jar -DgeneratePom=true",
-                   shell=True)
-        check_call("mvn package", shell=True)
+        from javac_parser import Java
+        Java._build_jar()
         assert os.path.isfile(JAR_PATH)
         develop.run(self)
 

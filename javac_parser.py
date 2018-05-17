@@ -50,7 +50,11 @@ JAR_PATH = find_jar_path()
 
 
 class Java(object):
-    def build(self):
+    @staticmethod
+    def _build_jar():
+        """
+        Rebuilds the jar.
+        """
         py4j_jar = os.path.join(sys.prefix, 'share/py4j/py4j0.10.6.jar')
         subprocess.check_call("mvn install:install-file -Dfile=" + py4j_jar +
                               " -DgroupId=py4j -DartifactId=py4j"
@@ -60,10 +64,9 @@ class Java(object):
         assert os.path.isfile(JAR_PATH)
 
     def __init__(self):
-        if os.path.isfile(JAR_PATH):
-            pass
-        else:
-            self.build()
+        if not os.path.isfile(JAR_PATH):
+            raise ImportError("Could not find the JAR file associated with "
+                              "javac_parser")
         java_port = launch_gateway(jarpath=JAR_PATH,
                                    die_on_exit=True,
                                    redirect_stdout=sys.stdout,
