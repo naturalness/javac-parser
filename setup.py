@@ -124,7 +124,7 @@ setup(
     license='AGPL3+',
     keywords='java javac parser scanner lexer tokenizer',
     classifiers=[
-        'License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)'
+        'License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.4',
