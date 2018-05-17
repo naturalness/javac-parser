@@ -7,6 +7,7 @@
 import codecs
 import os
 import sys
+from shutil import rmtree
 
 from setuptools import Command, find_packages, setup
 from setuptools.command.develop import develop
@@ -71,7 +72,6 @@ class PostDevelopCommand(develop):
     """
     def run(self):
         # Remove target/ to FORCE the recreation of the JAR files.
-        from shutil import rmtree
         rmtree(os.path.join(HERE, 'target'), ignore_errors=True)
         from javac_parser import Java
         Java._build_jar()
