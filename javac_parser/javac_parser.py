@@ -92,12 +92,6 @@ class Java(object):
         self.app = self.gateway.jvm.ca.ualberta.cs.App()
         assert self.app.getNumParseErrors("") == 0
 
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *exc_info):
-        self.__del__()
-
     def get_num_parse_errors(self, java_source):
         """
         Attempt to parse a Java source string.
@@ -122,7 +116,7 @@ class Java(object):
             tuple(i) for i in self.app.checkSyntax(java_source)
         ]
 
-    def lex_call(self, java_source):
+    def _lex_call(self, java_source):
         binary = self.app.lexFlat(java_source)
         return msgpack.unpackb(binary)
 
@@ -162,4 +156,4 @@ class Java(object):
                 string
             )
 
-        return [convert(l) for l in self.lex_call(java_source)]
+        return [convert(l) for l in self._lex_call(java_source)]
